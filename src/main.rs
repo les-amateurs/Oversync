@@ -4,7 +4,7 @@ use crate::core::service::Service;
 use crate::core::test;
 use crate::bot::discord::DiscordBot;
 
-use dotenv::dotenv;
+use dotenvy::dotenv;
 
 use std::env;
 
