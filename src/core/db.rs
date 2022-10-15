@@ -48,6 +48,25 @@ impl Database {
         Ok(())
     }
 
+    fn create_directory(&self, name: &str) -> std::io::Result<()>{
+        let full_path = self.path.clone().join(name);
+        fs::create_dir(full_path)?;
+        Ok(())
+    }
+
+    pub fn ensure_collection(&mut self, name: &str) -> std::io::Result<()>{
+        let owned_name = name.to_owned();
+        if !self.meta.collections.contains(&owned_name) {
+            self.create_directory(&owned_name)?;
+            self.meta.collections.push(owned_name);
+        }
+        
+        // uncomment if you screw up and there are dups now
+        // self.meta.collections.dedup();
+        
+        Ok(())
+    }
+
     // TODO: rename meta_contents to a better name 
     // TODO: passthrough errors?
 
@@ -72,11 +91,13 @@ impl Database {
         // let manifest_path = self.get_meta_path();
         self.create_if_nonexist().expect("Database directory creation fail. ");
         match self.load_meta() {
-            Err(err) => {
+            Err(_err) => {
                 self.save_meta().expect("Initial save of metadata failed. ");
                 self.load_meta().expect("Initial reload of metadata failed. ");
             },
             Ok(_) => return, 
         }
     }
+
+
 }
