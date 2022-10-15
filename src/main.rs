@@ -17,6 +17,8 @@ async fn main() {
     println!("Starting!");
     // Test our services    
     test();
+    // Database
+    
     // Create our services
     let mut bot = DiscordBot::new(env::var("DISCORD_TOKEN").expect("DISCORD_TOKEN not set")).await;
     // Lmao so we just uh init all here
