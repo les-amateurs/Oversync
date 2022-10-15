@@ -663,6 +663,8 @@ dependencies = [
  "async-trait",
  "dotenvy",
  "rss",
+ "serde",
+ "serde_json",
  "serenity",
  "tokio",
 ]
