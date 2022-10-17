@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, Debug)]
-struct DatabaseMetadata{
+struct DatabaseMetadata {
     name: String,
     version: u32,
     open: bool,

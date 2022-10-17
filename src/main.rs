@@ -22,9 +22,9 @@ async fn main() {
     // TODO: Fix mess of a line
     let mut db = Database::new(env::current_dir().expect("Could not get current directory").join("database").to_str().unwrap().to_owned());
     db.start();
-    db.ensure_collection("hourly");
-    db.ensure_collection("daily");
-    db.ensure_collection("weekly");
+    db.ensure_collection("hourly").expect("Database collection add fail 1. ");
+    db.ensure_collection("daily").expect("Database collection add fail 2. ");
+    db.ensure_collection("weekly").expect("Database collection add fail 3. ");
     db.save_meta().expect("Save fail");
 
     // Create our services
