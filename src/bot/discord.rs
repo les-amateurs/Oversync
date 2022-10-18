@@ -23,7 +23,7 @@ impl EventHandler for DiscordBotHandler {
             // authentication error, or lack of permissions to post in the
             // channel, so log to stdout when some error happens, with a
             // description of it.
-            if let Err(why) = msg.channel_id.say(&ctx.http, "uh pong ig!").await {
+            if let Err(why) = msg.channel_id.say(&ctx.http, "uh pong ig! " + self).await {
                 println!("Error sending message: {:?}", why);
             }
         }
@@ -43,7 +43,7 @@ impl Service for DiscordBot{
     async fn start(&mut self){
         let client = &mut self.client;
 
-        
+
 
         client.start().await.expect("Error starting discord bot");
     }
