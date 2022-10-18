@@ -1,5 +1,8 @@
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use crate::core::service::Service;
+use crate::core::db::Database;
 
 use serenity::model::channel::Message;
 use serenity::model::gateway::Ready;
@@ -8,6 +11,7 @@ use serenity::prelude::*;
 pub struct DiscordBot{
     pub token: String,
     pub client: Client,
+    pub database: Arc<std::sync::Mutex<Database>>,
 }
 
 struct DiscordBotHandler;
@@ -38,12 +42,15 @@ impl Service for DiscordBot{
 
     async fn start(&mut self){
         let client = &mut self.client;
+
+        
+
         client.start().await.expect("Error starting discord bot");
     }
 }
 
 impl DiscordBot {
-    pub async fn new(token: String) -> DiscordBot {
+    pub async fn new(database_arc: Arc<std::sync::Mutex<Database>>, token: String) -> DiscordBot {
         let intents = GatewayIntents::GUILD_MESSAGES
         | GatewayIntents::DIRECT_MESSAGES
         | GatewayIntents::MESSAGE_CONTENT;
@@ -51,6 +58,7 @@ impl DiscordBot {
         DiscordBot {
             token: token.to_owned(),
             client: client,
+            database: database_arc, // we own the arc now!
         }
     }
 }

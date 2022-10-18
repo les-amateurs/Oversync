@@ -9,6 +9,9 @@ use dotenvy::dotenv;
 
 use std::env;
 
+use std::sync::Arc;
+use std::sync::Mutex;
+
 mod core;
 mod bot;
 
@@ -27,12 +30,14 @@ async fn main() {
     db.ensure_collection("weekly").expect("Database collection add fail 3. ");
     db.save_meta().expect("Save fail");
 
+    let db_arc = Arc::new(Mutex::new(db));
+
     // Create our services
-    let mut bot = DiscordBot::new(env::var("DISCORD_TOKEN").expect("DISCORD_TOKEN not set")).await;
+    let mut bot = DiscordBot::new(db_arc,env::var("DISCORD_TOKEN").expect("DISCORD_TOKEN not set")).await;
     // Lmao so we just uh init all here
     let bot_fut = bot.start();
     join!(bot_fut);
 
-    println!("Done!");
+    println!("Init Done!");
 
 }
