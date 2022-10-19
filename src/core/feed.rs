@@ -22,7 +22,7 @@ impl Default for FeedItem {
     }
 }
 
-struct FeedDestination{
+struct FeedDestination {
     dest_type: String,
     id: String,
 }
@@ -36,4 +36,10 @@ struct FeedJob{
 
 struct FeedCollection {
     jobs: Vec<FeedJob>,
+}
+
+struct FeedConfig{
+    hourly: Option<FeedCollection>,
+    daily: Option<FeedCollection>,
+    weekly: Option<FeedCollection>,
 }
