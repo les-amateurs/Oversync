@@ -1,0 +1,3 @@
+struct FeedItem{
+    title: String,
+}

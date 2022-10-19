@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use std::sync::Mutex;
 
 use async_trait::async_trait;
 use crate::core::service::Service;
@@ -14,16 +15,31 @@ pub struct DiscordBot{
     pub database: Arc<std::sync::Mutex<Database>>,
 }
 
+
+struct DatabaseInTypeMap;
+
+impl TypeMapKey for DatabaseInTypeMap {
+    type Value = Arc<Mutex<Database>>;
+}
+
 struct DiscordBotHandler;
+
+impl DiscordBotHandler {
+    async fn get_database(&self, ctx: &Context) -> Arc<Mutex<Database>>{
+        let type_map = ctx.data.read().await;
+        let db_arc = type_map.get::<DatabaseInTypeMap>().unwrap().clone();
+        db_arc
+    }
+}
+
 #[async_trait]
 impl EventHandler for DiscordBotHandler {
     async fn message(&self, ctx: Context, msg: Message) {
-        if msg.content == "!ping" {
-            // Sending a message can fail, due to a network error, an
-            // authentication error, or lack of permissions to post in the
-            // channel, so log to stdout when some error happens, with a
-            // description of it.
-            if let Err(why) = msg.channel_id.say(&ctx.http, "uh pong ig! " + self).await {
+        if msg.content == "!db_path" {
+            // Testing accessing the database through a message commasnd
+            let meta_pathbuf = self.get_database(&ctx).await.lock().unwrap().get_meta_path();
+            let test = meta_pathbuf.to_str().unwrap();
+            if let Err(why) = msg.channel_id.say(&ctx.http, test).await {
                 println!("Error sending message: {:?}", why);
             }
         }
@@ -55,6 +71,7 @@ impl DiscordBot {
         | GatewayIntents::DIRECT_MESSAGES
         | GatewayIntents::MESSAGE_CONTENT;
         let client =  Client::builder(token.to_owned(), intents).event_handler(DiscordBotHandler).await.expect("Discord Initalize Client Failed");
+        client.data.write().await.insert::<DatabaseInTypeMap>(database_arc.clone());
         DiscordBot {
             token: token.to_owned(),
             client: client,
