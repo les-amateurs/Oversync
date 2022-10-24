@@ -1,4 +1,4 @@
-mod commands;
+mod slash_commands;
 
 use std::sync::Arc;
 use std::sync::Mutex;
@@ -52,9 +52,12 @@ impl EventHandler for DiscordBotHandler {
 
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         if let Interaction::ApplicationCommand(command) = interaction {
-            let message: Option<String> = match command.data.name.as_str() {
+            let (ctx, message): (Context, Option<String>) = match command.data.name.as_str() {
+                "configure" => {
+                    slash_commands::configure::run(ctx, &command)
+                }
                 _ => {
-                    let error_msg = "Not implemented. ";
+                    let error_msg = format!("Not implemented. Requested {}", command.data.name.as_str());
                     if let Err(why) = command
                         .create_interaction_response(&ctx.http, |response| {
                             response
@@ -65,7 +68,7 @@ impl EventHandler for DiscordBotHandler {
                     {
                         println!("Slash command error response failure: {}", why);
                     }
-                    None
+                    (ctx, None)
                 }
             };
 
@@ -93,7 +96,7 @@ impl EventHandler for DiscordBotHandler {
             command.name("test").description("Example")
         }).await.expect("Commands should be synced. ");
         Command::create_global_application_command(&ctx.http, |command| {
-            commands::
+            slash_commands::configure::register(command)
         }).await.expect("Commands should be synced. ");
         println!("Command sync done");
     }

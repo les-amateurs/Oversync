@@ -1,11 +1,15 @@
 use serenity::builder::CreateApplicationCommand;
-use serenity::model::prelude::command::CommandOptionType;
+use serenity::client::Context;
+use serenity::model::prelude::command::{CommandOptionType, Command};
 use serenity::model::prelude::interaction::application_command::{
     CommandDataOption,
-    CommandDataOptionValue,
+    CommandDataOptionValue, ApplicationCommandInteraction,
 };
 
-pub fn run(options: &[CommandDataOption]) -> String {
+pub fn run(ctx: Context, command: &ApplicationCommandInteraction) -> (Context, Option<String>) {
+    
+    let options = &command.data.options;
+
     let option = options
         .get(0)
         .expect("Expected attachment option")
@@ -14,18 +18,18 @@ pub fn run(options: &[CommandDataOption]) -> String {
         .expect("Expected attachment object");
 
     if let CommandDataOptionValue::Attachment(attachment) = option {
-        format!("Attachment name: {}, attachment size: {}", attachment.filename, attachment.size)
+        (ctx, Some(format!("Attachment name: {}, attachment size: {}", attachment.filename, attachment.size)))
     } else {
-        "Please provide a valid attachment".to_string()
+        (ctx, Some("Please provide a valid attachment".to_string()))
     }
 }
 
 pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicationCommand {
-    command.name("attachmentinput").description("Test command for attachment input").create_option(
+    command.name("configure").description("Configure feeds for this guild. ").create_option(
         |option| {
             option
                 .name("attachment")
-                .description("A file")
+                .description("Configuration file. Json is supported at the moment. ")
                 .kind(CommandOptionType::Attachment)
                 .required(true)
         },
