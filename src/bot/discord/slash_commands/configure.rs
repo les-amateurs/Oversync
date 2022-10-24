@@ -6,7 +6,9 @@ use serenity::model::prelude::interaction::application_command::{
     CommandDataOptionValue, ApplicationCommandInteraction,
 };
 
-pub fn run(ctx: Context, command: &ApplicationCommandInteraction) -> (Context, Option<String>) {
+use crate::core::feed::FeedConfig;
+
+pub async fn run(ctx: Context, command: &ApplicationCommandInteraction) -> (Context, Option<String>) {
     
     let options = &command.data.options;
 
@@ -18,9 +20,17 @@ pub fn run(ctx: Context, command: &ApplicationCommandInteraction) -> (Context, O
         .expect("Expected attachment object");
 
     if let CommandDataOptionValue::Attachment(attachment) = option {
-        (ctx, Some(format!("Attachment name: {}, attachment size: {}", attachment.filename, attachment.size)))
+        let file_result = attachment.download().await;
+        if let Ok(file) = file_result {
+            let str = String::from_utf8(file).unwrap();
+            (ctx, Some(format!("Updated. {} bytes transferred.  ", attachment.size)))
+        }else{
+            // todo add: debug data printouts
+            (ctx, Some(format!("File download error. ")))
+        }
+        
     } else {
-        (ctx, Some("Please provide a valid attachment".to_string()))
+        (ctx, Some("Please provide a valid configuration file (not found). ".to_string()))
     }
 }
 

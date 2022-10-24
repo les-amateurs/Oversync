@@ -1,6 +1,6 @@
 use http::Uri;
 
-struct FeedItem {
+pub struct FeedItem {
     title: String,
     description: String,
     link: Option<String>,
@@ -22,23 +22,23 @@ impl Default for FeedItem {
     }
 }
 
-struct FeedDestination {
+pub struct FeedDestination {
     dest_type: String,
     id: String,
 }
 
-struct FeedJob{
+pub struct FeedJob{
     uri: Uri,
     last_hash: Option<u64>,
     feed_type: String,
     destination: FeedDestination
 }
 
-struct FeedCollection {
+pub struct FeedCollection {
     jobs: Vec<FeedJob>,
 }
 
-struct FeedConfig{
+pub struct FeedConfig{
     hourly: Option<FeedCollection>,
     daily: Option<FeedCollection>,
     weekly: Option<FeedCollection>,

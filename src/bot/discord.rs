@@ -54,7 +54,7 @@ impl EventHandler for DiscordBotHandler {
         if let Interaction::ApplicationCommand(command) = interaction {
             let (ctx, message): (Context, Option<String>) = match command.data.name.as_str() {
                 "configure" => {
-                    slash_commands::configure::run(ctx, &command)
+                    slash_commands::configure::run(ctx, &command).await
                 }
                 _ => {
                     let error_msg = format!("Not implemented. Requested {}", command.data.name.as_str());
