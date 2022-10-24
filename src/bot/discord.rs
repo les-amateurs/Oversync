@@ -1,7 +1,12 @@
+mod commands;
+
 use std::sync::Arc;
 use std::sync::Mutex;
 
 use async_trait::async_trait;
+use serenity::model::application::interaction::Interaction;
+use serenity::model::application::interaction::InteractionResponseType;
+use serenity::model::prelude::command::Command;
 use crate::core::service::Service;
 use crate::core::db::Database;
 
@@ -45,8 +50,52 @@ impl EventHandler for DiscordBotHandler {
         }
     }
 
-    async fn ready(&self, _: Context, ready: Ready) {
+    async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
+        if let Interaction::ApplicationCommand(command) = interaction {
+            let message: Option<String> = match command.data.name.as_str() {
+                _ => {
+                    let error_msg = "Not implemented. ";
+                    if let Err(why) = command
+                        .create_interaction_response(&ctx.http, |response| {
+                            response
+                                .kind(InteractionResponseType::ChannelMessageWithSource)
+                                .interaction_response_data(|message| message.content(error_msg))
+                        })
+                        .await
+                    {
+                        println!("Slash command error response failure: {}", why);
+                    }
+                    None
+                }
+            };
+
+            match message {
+                Some(message_str) => {
+                    if let Err(why) = command
+                        .create_interaction_response(&ctx.http, |response| {
+                            response
+                                .kind(InteractionResponseType::ChannelMessageWithSource)
+                                .interaction_response_data(|message| message.content(message_str))
+                        })
+                        .await
+                    {
+                        println!("Slash command normal response failure: {}", why);
+                    }
+                }
+                None => todo!("Don't"),
+            };
+        }
+    }
+
+    async fn ready(&self, ctx: Context, ready: Ready) {
         println!("{} is connected!", ready.user.name);
+        Command::create_global_application_command(&ctx.http, |command| {
+            command.name("test").description("Example")
+        }).await.expect("Commands should be synced. ");
+        Command::create_global_application_command(&ctx.http, |command| {
+            commands::
+        }).await.expect("Commands should be synced. ");
+        println!("Command sync done");
     }
 }
 

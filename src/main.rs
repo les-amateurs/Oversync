@@ -39,5 +39,4 @@ async fn main() {
     join!(bot_fut);
 
     println!("Init Done!");
-
 }
