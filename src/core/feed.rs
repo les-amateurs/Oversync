@@ -3,12 +3,12 @@ use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct FeedItem {
-    title: String,
-    description: String,
-    link: Option<String>,
-    author: Option<String>,
-    comments: Option<String>,
-    origin: String, // currently just "rss"
+    pub title: String,
+    pub description: String,
+    pub link: Option<String>,
+    pub author: Option<String>,
+    pub comments: Option<String>,
+    pub origin: String, // currently just "rss"
 }
 
 impl Default for FeedItem {
@@ -26,27 +26,27 @@ impl Default for FeedItem {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct FeedDestination {
-    dest_type: String,
-    id: String,
+    pub dest_type: String,
+    pub id: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct FeedJob{
     #[serde(with = "http_serde::uri")]
-    uri: Uri,
-    last_hash: Option<u64>,
-    feed_type: String, // rss for now
-    destination: FeedDestination
+    pub uri: Uri,
+    pub last_hash: Option<u64>,
+    pub feed_type: String, // rss for now
+    pub destination: FeedDestination
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct FeedCollection {
-    jobs: Vec<FeedJob>,
+    pub jobs: Vec<FeedJob>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct FeedConfig{
-    hourly: Option<FeedCollection>,
-    daily: Option<FeedCollection>,
-    weekly: Option<FeedCollection>,
+    pub hourly: Option<FeedCollection>,
+    pub daily: Option<FeedCollection>,
+    pub weekly: Option<FeedCollection>,
 }
