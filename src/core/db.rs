@@ -83,12 +83,28 @@ impl Database {
         Ok(())
     }
 
+    fn get_filename(&self, key: &str) -> String{
+        format!("{}{}",key,".json")
+    }
+
+    fn get_path_for_key(&self, collection: &str, key: &str) -> PathBuf {
+        self.path.clone().join(collection).join(self.get_filename(key))
+    }
+
+    pub fn put(&self, collection: &str, key: &str, value: &impl Serialize) -> std::io::Result<()>{
+        let path = self.get_path_for_key(collection, key);
+        let val_str = serde_json::to_string(value);
+        
+        return Result::Ok(());
+    }
+
     // picked this name cause serenity used it
     // if someone has a better name like init
     // then sure I might change it
 
     pub fn start(&mut self){
         // let manifest_path = self.get_meta_path();
+        // TODO: NOT JUST PANIC ON FAILS LOL
         self.create_if_nonexist().expect("Database directory creation fail. ");
         match self.load_meta() {
             Err(_err) => {

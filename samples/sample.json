@@ -1,0 +1,14 @@
+{
+    "hourly": {
+        "jobs": [
+            {
+                "uri": "https://www.state.gov/rss-feed/climate-environment-and-conservation/feed/",
+                "feed_type": "rss",
+                "destination": {
+                    "dest_type": "discord",
+                    "id": "1032690512366403624"
+                }
+            }
+        ]
+    }
+}

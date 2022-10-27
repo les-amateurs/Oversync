@@ -6,7 +6,10 @@ use serenity::model::prelude::interaction::application_command::{
     CommandDataOptionValue, ApplicationCommandInteraction,
 };
 
+use serde_json;
+
 use crate::core::feed::FeedConfig;
+use crate::bot::discord::slash_commands::shared::get_database;
 
 pub async fn run(ctx: Context, command: &ApplicationCommandInteraction) -> (Context, Option<String>) {
     
@@ -22,8 +25,18 @@ pub async fn run(ctx: Context, command: &ApplicationCommandInteraction) -> (Cont
     if let CommandDataOptionValue::Attachment(attachment) = option {
         let file_result = attachment.download().await;
         if let Ok(file) = file_result {
-            let str = String::from_utf8(file).unwrap();
-            (ctx, Some(format!("Updated. {} bytes transferred.  ", attachment.size)))
+            let str = String::from_utf8(file).unwrap_or("{}".to_string());
+            match serde_json::from_str::<FeedConfig>(&str) {
+                Ok(config) => {
+                    let db_arc = get_database(&ctx).await;
+                    let db = db_arc.lock().unwrap();
+                    
+                    (ctx, Some(format!("Updated. {} bytes transferred.  ", attachment.size)))
+                }
+                Err(error) => {
+                    (ctx, Some(format!("Invalid format. {}",error)))
+                }
+            }
         }else{
             // todo add: debug data printouts
             (ctx, Some(format!("File download error. ")))
