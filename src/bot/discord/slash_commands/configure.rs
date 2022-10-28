@@ -26,11 +26,24 @@ pub async fn run(ctx: Context, command: &ApplicationCommandInteraction) -> (Cont
         let file_result = attachment.download().await;
         if let Ok(file) = file_result {
             let str = String::from_utf8(file).unwrap_or("{}".to_string());
+            let mut status = "".to_owned();
             match serde_json::from_str::<FeedConfig>(&str) {
-                Ok(config) => {
+                Ok(feed_config) => {
                     let db_arc = get_database(&ctx).await;
                     let db = db_arc.lock().unwrap();
-                    
+                    match feed_config.hourly {
+                        Some(feed_collection) => {
+                            match db.put("hourly",command.guild_id.unwrap().to_string().as_ref(),&feed_collection) {
+                                Ok(_) => {
+                                    status.push_str("Hourly updated!\n");
+                                },
+                                Err(_) => {
+                                    status.push_str("Hourly jobs failed to update!\n");
+                                },
+                            }
+                        },
+                        None => {},
+                    }
                     (ctx, Some(format!("Updated. {} bytes transferred.  ", attachment.size)))
                 }
                 Err(error) => {
