@@ -1,18 +1,19 @@
 use serenity::builder::CreateApplicationCommand;
 use serenity::client::Context;
-use serenity::model::prelude::command::{CommandOptionType, Command};
+use serenity::model::prelude::command::{Command, CommandOptionType};
 use serenity::model::prelude::interaction::application_command::{
-    CommandDataOption,
-    CommandDataOptionValue, ApplicationCommandInteraction,
+    ApplicationCommandInteraction, CommandDataOption, CommandDataOptionValue,
 };
 
 use serde_json;
 
-use crate::core::feed::{FeedConfig, FeedCollection};
 use crate::bot::discord::slash_commands::shared::get_database;
+use crate::core::feed::{FeedCollection, FeedConfig};
 
-pub async fn run(ctx: Context, command: &ApplicationCommandInteraction) -> (Context, Option<String>) {
-    
+pub async fn run(
+    ctx: Context,
+    command: &ApplicationCommandInteraction,
+) -> (Context, Option<String>) {
     let options = &command.data.options;
 
     let option = options
@@ -32,59 +33,71 @@ pub async fn run(ctx: Context, command: &ApplicationCommandInteraction) -> (Cont
                     let db_arc = get_database(&ctx).await;
                     let db = db_arc.lock().unwrap();
                     // reusing this quite a lot
-                    let mut save_feed_collection = |feed_collection: FeedCollection, key: &str| {
-                        match db.put(key,command.guild_id.unwrap().to_string().as_ref(),&feed_collection) {
+                    let mut save_feed_collection =
+                        |feed_collection: FeedCollection, key: &str| match db.put(
+                            key,
+                            command.guild_id.unwrap().to_string().as_ref(),
+                            &feed_collection,
+                        ) {
                             Ok(_) => {
                                 status.push_str(format!("`{}` was updated \n", key).as_ref());
-                            },
+                            }
                             Err(_) => {
-                                status.push_str(format!("`{}` was failed to update \n", key).as_ref());
-                            },
-                        }
-                    };
+                                status.push_str(
+                                    format!("`{}` was failed to update \n", key).as_ref(),
+                                );
+                            }
+                        };
                     match feed_config.hourly {
                         Some(feed_collection) => {
-                            save_feed_collection(feed_collection,"hourly");
-                        },
-                        None => {},
+                            save_feed_collection(feed_collection, "hourly");
+                        }
+                        None => {}
                     }
                     match feed_config.daily {
                         Some(feed_collection) => {
-                            save_feed_collection(feed_collection,"daily");
-                        },
-                        None => {},
+                            save_feed_collection(feed_collection, "daily");
+                        }
+                        None => {}
                     }
                     match feed_config.weekly {
                         Some(feed_collection) => {
-                            save_feed_collection(feed_collection,"weekly");
-                        },
-                        None => {},
+                            save_feed_collection(feed_collection, "weekly");
+                        }
+                        None => {}
                     }
 
-                    (ctx, Some(format!("Updated. {} bytes transferred. {} ", attachment.size, status)))
+                    (
+                        ctx,
+                        Some(format!(
+                            "Updated. {} bytes transferred. {} ",
+                            attachment.size, status
+                        )),
+                    )
                 }
-                Err(error) => {
-                    (ctx, Some(format!("Invalid format. {}",error)))
-                }
+                Err(error) => (ctx, Some(format!("Invalid format. {}", error))),
             }
-        }else{
+        } else {
             // todo add: debug data printouts
             (ctx, Some(format!("File download error. ")))
         }
-        
     } else {
-        (ctx, Some("Please provide a valid configuration file (not found). ".to_string()))
+        (
+            ctx,
+            Some("Please provide a valid configuration file (not found). ".to_string()),
+        )
     }
 }
 
 pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicationCommand {
-    command.name("configure").description("Configure feeds for this guild. ").create_option(
-        |option| {
+    command
+        .name("configure")
+        .description("Configure feeds for this guild. ")
+        .create_option(|option| {
             option
                 .name("attachment")
                 .description("Configuration file. Json is supported at the moment. ")
                 .kind(CommandOptionType::Attachment)
                 .required(true)
-        },
-    )
+        })
 }

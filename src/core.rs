@@ -1,7 +1,7 @@
-pub mod service;
 pub mod db;
 pub mod feed;
+pub mod service;
 
-pub fn test(){
+pub fn test() {
     println!("Hello, world! (test)");
 }

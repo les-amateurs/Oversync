@@ -3,8 +3,8 @@ use async_trait::async_trait;
 #[async_trait]
 pub trait Service {
     async fn recieve(&self);
-    
-    async fn start(&mut self){
+
+    async fn start(&mut self) {
         println!("Starting empty service :(");
     }
 }

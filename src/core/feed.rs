@@ -1,5 +1,5 @@
 use http::Uri;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct FeedItem {
@@ -31,12 +31,12 @@ pub struct FeedDestination {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct FeedJob{
+pub struct FeedJob {
     #[serde(with = "http_serde::uri")]
     pub uri: Uri,
     pub last_hash: Option<u64>,
     pub feed_type: String, // rss for now
-    pub destination: FeedDestination
+    pub destination: FeedDestination,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -45,7 +45,7 @@ pub struct FeedCollection {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct FeedConfig{
+pub struct FeedConfig {
     pub hourly: Option<FeedCollection>,
     pub daily: Option<FeedCollection>,
     pub weekly: Option<FeedCollection>,
