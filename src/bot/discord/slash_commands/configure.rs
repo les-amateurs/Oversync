@@ -31,6 +31,7 @@ pub async fn run(ctx: Context, command: &ApplicationCommandInteraction) -> (Cont
                 Ok(feed_config) => {
                     let db_arc = get_database(&ctx).await;
                     let db = db_arc.lock().unwrap();
+                    // reusing this quite a lot
                     let mut save_feed_collection = |feed_collection: FeedCollection, key: &str| {
                         match db.put(key,command.guild_id.unwrap().to_string().as_ref(),&feed_collection) {
                             Ok(_) => {
