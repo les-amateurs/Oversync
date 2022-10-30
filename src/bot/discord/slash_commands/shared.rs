@@ -12,7 +12,8 @@ use serenity::model::channel::Message;
 use serenity::model::gateway::Ready;
 use serenity::prelude::*;
 
-struct DatabaseInTypeMap;
+// used in discord
+pub struct DatabaseInTypeMap;
 
 impl TypeMapKey for DatabaseInTypeMap {
     type Value = Arc<Mutex<Database>>;

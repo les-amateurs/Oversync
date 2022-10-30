@@ -13,18 +13,13 @@ use crate::core::db::Database;
 use serenity::model::channel::Message;
 use serenity::model::gateway::Ready;
 use serenity::prelude::*;
+// TODO: Read up the difference between self and crate
+use self::slash_commands::shared::DatabaseInTypeMap;
 
 pub struct DiscordBot{
     pub token: String,
     pub client: Client,
     pub database: Arc<std::sync::Mutex<Database>>,
-}
-
-
-struct DatabaseInTypeMap;
-
-impl TypeMapKey for DatabaseInTypeMap {
-    type Value = Arc<Mutex<Database>>;
 }
 
 struct DiscordBotHandler;
