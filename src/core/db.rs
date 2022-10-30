@@ -14,12 +14,12 @@ struct DatabaseMetadata {
 
 impl Default for DatabaseMetadata {
     fn default() -> DatabaseMetadata {
-        return DatabaseMetadata {
+        DatabaseMetadata {
             name: "default database".to_string(),
             version: 1,
             open: true,
             collections: vec![], // empty
-        };
+        }
     }
 }
 
@@ -97,10 +97,10 @@ impl Database {
     }
 
     pub fn put(&self, collection: &str, key: &str, value: &impl Serialize) -> std::io::Result<()> {
-        let path = self.get_path_for_key(collection, key);
-        let val_str = serde_json::to_string(value);
+        let _path = self.get_path_for_key(collection, key);
+        let _val_str = serde_json::to_string(value);
 
-        return Result::Ok(());
+        Result::Ok(())
     }
 
     // picked this name cause serenity used it
@@ -118,7 +118,7 @@ impl Database {
                 self.load_meta()
                     .expect("Initial reload of metadata failed. ");
             }
-            Ok(_) => return,
+            Ok(_) => (),
         }
     }
 }

@@ -1,8 +1,8 @@
 use serenity::builder::CreateApplicationCommand;
 use serenity::client::Context;
-use serenity::model::prelude::command::{Command, CommandOptionType};
+use serenity::model::prelude::command::{CommandOptionType};
 use serenity::model::prelude::interaction::application_command::{
-    ApplicationCommandInteraction, CommandDataOption, CommandDataOptionValue,
+    ApplicationCommandInteraction, CommandDataOptionValue,
 };
 
 use serde_json;
@@ -79,7 +79,7 @@ pub async fn run(
             }
         } else {
             // todo add: debug data printouts
-            (ctx, Some(format!("File download error. ")))
+            (ctx, Some("File download error. ".to_string()))
         }
     } else {
         (

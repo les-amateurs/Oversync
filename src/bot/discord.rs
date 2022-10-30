@@ -123,7 +123,7 @@ impl DiscordBot {
         let intents = GatewayIntents::GUILD_MESSAGES
             | GatewayIntents::DIRECT_MESSAGES
             | GatewayIntents::MESSAGE_CONTENT;
-        let client = Client::builder(token.to_owned(), intents)
+        let client = Client::builder(&token, intents)
             .event_handler(DiscordBotHandler)
             .await
             .expect("Discord Initalize Client Failed");
@@ -134,7 +134,7 @@ impl DiscordBot {
             .insert::<DatabaseInTypeMap>(database_arc.clone());
         DiscordBot {
             token: token.to_owned(),
-            client: client,
+            client,
             database: database_arc, // we own the arc now!
         }
     }
