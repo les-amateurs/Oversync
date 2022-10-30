@@ -29,6 +29,7 @@ pub struct Database {
 }
 
 impl Database {
+    // TODO: Refactor to take &Path
     pub fn new(path_str: String) -> Database {
         Database {
             path: Path::new(&path_str).to_owned(),
@@ -97,8 +98,11 @@ impl Database {
     }
 
     pub fn put(&self, collection: &str, key: &str, value: &impl Serialize) -> std::io::Result<()> {
-        let _path = self.get_path_for_key(collection, key);
-        let _val_str = serde_json::to_string(value);
+        let path = self.get_path_for_key(collection, key);
+        let val_str = serde_json::to_string(value)?;
+
+        let mut file = File::create(path)?;
+        file.write_all(val_str.as_bytes())?;
 
         Result::Ok(())
     }
