@@ -29,7 +29,15 @@ pub struct Database {
 }
 
 impl Database {
-    // TODO: Refactor to take &Path
+    // TODO: Replace new
+    pub fn from_path(path: &Path) -> Database {
+        Database {
+            path: Path::new(&path).to_owned(),
+            meta: DatabaseMetadata::default(),
+        }
+    }
+
+    #[deprecated(note = "changing to use a path reference for more clarity")]
     pub fn new(path_str: String) -> Database {
         Database {
             path: Path::new(&path_str).to_owned(),
