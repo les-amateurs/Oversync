@@ -18,6 +18,7 @@ impl TypeMapKey for DatabaseInTypeMap {
     type Value = Arc<Mutex<Database>>;
 }
 
+// TODO: fix
 pub async fn get_database(ctx: &Context) -> Arc<Mutex<Database>>{
     let type_map = ctx.data.read().await;
     let db_arc = type_map.get::<DatabaseInTypeMap>().unwrap().clone();
