@@ -4,6 +4,7 @@ use crate::bot::discord::DiscordBot;
 use crate::core::db::Database;
 use crate::core::service::Service;
 use crate::core::test;
+use crate::scheduling::scheduler::Scheduler;
 
 use dotenvy::dotenv;
 
@@ -12,8 +13,9 @@ use std::env;
 use std::sync::Arc;
 use std::sync::Mutex;
 
-mod bot;
 mod core;
+mod bot;
+mod scheduling;
 
 #[tokio::main]
 async fn main() {
@@ -43,14 +45,22 @@ async fn main() {
     let db_arc = Arc::new(Mutex::new(db));
 
     // Create our services
-    let mut bot = DiscordBot::new(
-        db_arc,
+    let bot = DiscordBot::new(
+        db_arc.clone(),
         env::var("DISCORD_TOKEN").expect("DISCORD_TOKEN not set"),
     )
     .await;
+
+    // Create scheduler last!
+    let mut scheduler = Scheduler::new(db_arc.clone());
+    scheduler.set_bot(bot); // we give away our bot now
+    scheduler.start().await;
+
     // Lmao so we just uh init all here
-    let bot_fut = bot.start();
-    join!(bot_fut);
+    if let Some(mut bot) = scheduler.bot {
+        let bot_fut = bot.start();
+        join!(bot_fut);
+    }
 
     println!("Init Done!");
 }

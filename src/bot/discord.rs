@@ -4,6 +4,7 @@ use std::sync::Arc;
 use std::sync::Mutex;
 
 use crate::core::db::Database;
+use crate::core::messaging::ServiceMessage;
 use crate::core::service::Service;
 use async_trait::async_trait;
 use serenity::model::application::interaction::Interaction;
@@ -107,8 +108,10 @@ impl EventHandler for DiscordBotHandler {
 
 #[async_trait]
 impl Service for DiscordBot {
-    async fn recieve(&self) {
-        todo!()
+    async fn recieve(&self, message: Arc<&ServiceMessage>) {
+        match message.as_ref() {
+            ServiceMessage::FeedUpdated(_) => todo!(),
+        }
     }
 
     async fn start(&mut self) {
