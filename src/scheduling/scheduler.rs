@@ -54,5 +54,7 @@ impl Service for Scheduler{
     async fn start(&mut self) {
         let mut cw_scheduler = self.cw_scheduler.lock().unwrap();
         cw_scheduler.every(1.seconds()).run(|| println!("Test"));
+        println!("Registered scheduled events");
     }
+    
 }
