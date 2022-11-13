@@ -6,7 +6,7 @@ pub struct FeedItem {
     pub title: String,
     pub description: String,
     pub link: Option<String>,
-    pub author: Option<String>,
+pub author: Option<String>,
     pub comments: Option<String>,
     pub origin: String, // currently just "rss"
 }
@@ -37,6 +37,10 @@ pub struct FeedJob {
     pub last_hash: Option<u64>,
     pub feed_type: String, // rss for now
     pub destination: FeedDestination,
+    #[serde(with = "chrono::serde::ts_seconds")]
+    #[serde(default)]
+    // TODO: check what default datetime is. 
+    pub last_synced: chrono::DateTime<chrono::Utc>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

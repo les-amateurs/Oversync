@@ -53,8 +53,15 @@ impl Service for Scheduler{
     
     async fn start(&mut self) {
         let mut cw_scheduler = self.cw_scheduler.lock().unwrap();
-        cw_scheduler.every(1.seconds()).run(|| println!("Test"));
+        // cw_scheduler.every(1.seconds()).run(|| println!("Test"));
         println!("Registered scheduled events");
+        let cw_scheduler_clone = self.cw_scheduler.clone();
+        tokio::spawn(async move {
+            loop {
+              cw_scheduler_clone.lock().unwrap().run_pending();
+              tokio::time::sleep(Duration::from_secs(60)).await;
+            }
+        });
     }
-    
+
 }

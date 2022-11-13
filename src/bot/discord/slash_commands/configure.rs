@@ -67,6 +67,8 @@ pub async fn run(
                         None => {}
                     }
 
+                    println!("Successfully updated config for {}",command.guild_id.unwrap().to_string());
+
                     (
                         ctx,
                         Some(format!(

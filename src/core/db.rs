@@ -115,6 +115,8 @@ impl Database {
         Result::Ok(())
     }
 
+    
+
     // picked this name cause serenity used it
     // if someone has a better name like init
     // then sure I might change it

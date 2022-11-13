@@ -15,6 +15,7 @@ serde_json = "1.0"
 http = "0.2.8"
 http-serde = "1.1.2"
 clokwerk = "0.3.5"
+chrono = { version = "0.4" , features = ["serde","default"]}
 
 [dependencies.serenity]
 default-features = false
