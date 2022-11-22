@@ -141,7 +141,7 @@ impl Database {
         }
     }
 
-    pub fn iterate_collection<T: DeserializeOwned>(&self, name: &str) -> std::io::Result<impl Iterator>{
+    pub fn iterate_collection<T: DeserializeOwned>(&self, name: &str) -> std::io::Result<impl Iterator<Item = std::io::Result<T>>>{
         let path = self.get_path_for_collection(&name);
         let keys = fs::read_dir(path)?;
         Ok(keys.map(|key_entry| -> std::io::Result<T> {

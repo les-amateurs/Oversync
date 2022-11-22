@@ -1,3 +1,4 @@
+use std::io::Error;
 use std::sync::{Mutex, Arc};
 
 // Scheduler, and trait for .seconds(), .minutes(), etc.
@@ -9,6 +10,7 @@ use std::time::Duration;
 
 use async_trait::async_trait;
 
+use crate::core::feed::FeedCollection;
 use crate::{core::{service::Service, messaging::{ServiceMessage, FeedUpdatedMessage}, db::Database, feed::{FeedItem, FeedJob}}, bot::discord::DiscordBot};
 
 // For now the scheduler owns the other services. 
@@ -34,8 +36,19 @@ impl Scheduler {
         self.bot = Some(bot);
     }
 
-    fn update_collection(&mut self, collection_name: &str, required_time: Duration){
-        
+    async fn try_update_collection(&mut self, collection_name: &str, required_time: chrono::Duration) -> std::io::Result<()> {
+        self.db_arc.lock().unwrap().iterate_collection::<FeedCollection>(collection_name)?.for_each(|result| {
+            if let Ok(feed_collection) = result {
+                feed_collection.jobs.into_iter().for_each(|job| {
+                    let time_since = chrono::Utc::now() - job.last_synced;
+                    if time_since >= required_time {
+                        // Sync now
+
+                    }
+                })
+            }
+        });
+        Ok(())
     }
 
     pub fn new(db_arc: Arc<Mutex<Database>>) -> Self {
