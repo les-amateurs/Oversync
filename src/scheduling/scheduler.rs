@@ -36,16 +36,20 @@ impl Scheduler {
         self.bot = Some(bot);
     }
 
+    async fn try_update(&mut self, job: &FeedJob) -> std::io::Result<()>{
+        // delegate to feed fetcher that determines which fetcher to use
+    }
+
     async fn try_update_collection(&mut self, collection_name: &str, required_time: chrono::Duration) -> std::io::Result<()> {
         self.db_arc.lock().unwrap().iterate_collection::<FeedCollection>(collection_name)?.for_each(|result| {
             if let Ok(feed_collection) = result {
-                feed_collection.jobs.into_iter().for_each(|job| {
+                for job in feed_collection.jobs  {
                     let time_since = chrono::Utc::now() - job.last_synced;
                     if time_since >= required_time {
                         // Sync now
-
+                        self.try_update(&job).await?;
                     }
-                })
+                }
             }
         });
         Ok(())
