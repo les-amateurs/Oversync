@@ -2,6 +2,7 @@ use std::fs::{self, File};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
+use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -98,10 +99,14 @@ impl Database {
         format!("{}{}", key, ".json")
     }
 
-    fn get_path_for_key(&self, collection: &str, key: &str) -> PathBuf {
+    fn get_path_for_collection(&self, collection_name: &str) -> PathBuf {
         self.path
             .clone()
-            .join(collection)
+            .join(collection_name)
+    }
+
+    fn get_path_for_key(&self, collection_name: &str, key: &str) -> PathBuf {
+        self.get_path_for_collection(&collection_name)
             .join(self.get_filename(key))
     }
 
@@ -135,4 +140,16 @@ impl Database {
             Ok(_) => (),
         }
     }
+
+    fn iterate_collection<T: DeserializeOwned>(&self, name: &str) -> std::io::Result<impl Iterator>{
+        let path = self.get_path_for_collection(&name);
+        let keys = fs::read_dir(path)?;
+        Ok(keys.map(|key_entry| -> std::io::Result<T> {
+            let raw_data = fs::read(key_entry?.path())?;
+            // let str_data = String::from_utf8(raw_data).unwrap_or("{}".to_string());
+            let instance = serde_json::from_slice(&raw_data)?;
+            Ok(instance)
+        }))
+    }
+
 }

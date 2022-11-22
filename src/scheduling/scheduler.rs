@@ -34,6 +34,10 @@ impl Scheduler {
         self.bot = Some(bot);
     }
 
+    fn update_collection(&mut self, collection_name: &str, required_time: Duration){
+        
+    }
+
     pub fn new(db_arc: Arc<Mutex<Database>>) -> Self {
         Self {
             db_arc,
