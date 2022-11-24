@@ -11,8 +11,14 @@ pub struct FetcherContext {
 
 impl FetcherContext {
     pub fn new() -> Self{
+        let client_builder = Client::builder();
+        client_builder.user_agent(concat!(
+            env!("CARGO_PKG_NAME"),
+            "/",
+            env!("CARGO_PKG_VERSION"),
+        )); // So Oversync/0.2.0 (this may change)
         FetcherContext {
-            client: Client::new()
+            client
         }
     }
 }
