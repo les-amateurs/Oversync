@@ -17,8 +17,9 @@ impl FetcherContext {
             "/",
             env!("CARGO_PKG_VERSION"),
         )); // So Oversync/0.2.0 (this may change)
+        
         FetcherContext {
-            client
+            client: client_builder.build()
         }
     }
 }

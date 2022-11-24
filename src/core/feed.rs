@@ -1,12 +1,12 @@
 use http::Uri;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, Hash)]
 pub struct FeedItem {
     pub title: String,
     pub description: String,
     pub link: Option<String>,
-pub author: Option<String>,
+    pub author: Option<String>,
     pub comments: Option<String>,
     pub origin: String, // currently just "rss"
 }
