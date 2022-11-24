@@ -20,11 +20,12 @@ impl Fetcher for RSSFetcher {
         
         let channel = Channel::read_from(&response_bytes[..])?;
 
+        // TODO: avoid excessive copying
         Ok(channel.items.iter().map(|item| FeedItem {
-            author: item.author,
-            link: item.link,
-            title: item.title.unwrap_or_else(|| "Untitled RSS item. ".to_owned()),
-            description: item.description.unwrap_or_else(|| "RSS item had no desc. ".to_owned()),
+            author: item.author.clone(),
+            link: item.link.clone(),
+            title: item.title.clone().unwrap_or_else(|| "Untitled RSS item. ".to_owned()),
+            description: item.description.clone().unwrap_or_else(|| "RSS item had no desc. ".to_owned()),
             comments: None, // new comments will alter hash, TODO: impl custom hash
             origin: "rss".to_owned()
         }).collect())
