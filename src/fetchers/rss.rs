@@ -11,7 +11,7 @@ pub struct RSSFetcher {
 
 #[async_trait]
 impl Fetcher for RSSFetcher {
-    async fn fetch(context: &mut FetcherContext, job: &FeedJob) -> std::io::Result<Vec<FeedItem>> {
+    async fn fetch(context: &mut FetcherContext, job: &FeedJob) -> anyhow::Result<Vec<FeedItem>> {
         let req_builder = Self::get(context, &job.uri);
         let response = req_builder.send().await?;
         

@@ -39,13 +39,13 @@ impl Scheduler {
         self.bot = Some(bot);
     }
 
-    async fn try_update(&mut self,context: &mut FetcherContext, job: &FeedJob) -> std::result::Result<()>{
+    async fn try_update(&mut self,context: &mut FetcherContext, job: &FeedJob) -> anyhow::Result<()>{
         // delegate to feed fetcher that determines which fetcher to use
         let items = fetch_any(context, job).await?;
         Ok(())
     }
 
-    async fn try_update_collection(&mut self, collection_name: &str, required_time: chrono::Duration) -> std::result::Result<()> {
+    async fn try_update_collection(&mut self, collection_name: &str, required_time: chrono::Duration) -> anyhow::Result<()> {
         let feed_jobs = self.db_arc.lock().unwrap().iterate_collection::<FeedCollection>(collection_name)?;
         let mut context = FetcherContext::new();
         for feed_collection_result in feed_jobs {

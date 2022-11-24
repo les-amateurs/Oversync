@@ -80,7 +80,7 @@ impl Database {
     // TODO: rename meta_contents to a better name
     // TODO: passthrough errors?
 
-    pub fn save_meta(&self) -> std::result::Result<()> {
+    pub fn save_meta(&self) -> anyhow::Result<()> {
         let mut file = File::create(self.get_meta_path().as_path()).expect("Meta file open fail. ");
         let meta_contents =
             serde_json::to_string(&self.meta).expect("Serializing meta state failed. ");
@@ -89,7 +89,7 @@ impl Database {
         Ok(())
     }
 
-    pub fn load_meta(&mut self) -> std::result::Result<()> {
+    pub fn load_meta(&mut self) -> anyhow::Result<()> {
         let meta_contents = fs::read_to_string(self.get_meta_path().as_os_str())?;
         self.meta = serde_json::from_str(&meta_contents)?;
         Ok(())
@@ -110,7 +110,7 @@ impl Database {
             .join(self.get_filename(key))
     }
 
-    pub fn put(&self, collection: &str, key: &str, value: &impl Serialize) -> std::result::Result<()> {
+    pub fn put(&self, collection: &str, key: &str, value: &impl Serialize) -> anyhow::Result<()> {
         let path = self.get_path_for_key(collection, key);
         let val_str = serde_json::to_string(value)?;
 
@@ -141,10 +141,10 @@ impl Database {
         }
     }
 
-    pub fn iterate_collection<T: DeserializeOwned>(&self, name: &str) -> std::result::Result<impl Iterator<Item = std::result::Result<T>>>{
+    pub fn iterate_collection<T: DeserializeOwned>(&self, name: &str) -> anyhow::Result<impl Iterator<Item = anyhow::Result<T>>>{
         let path = self.get_path_for_collection(&name);
         let keys = fs::read_dir(path)?;
-        Ok(keys.map(|key_entry| -> std::result::Result<T> {
+        Ok(keys.map(|key_entry| -> anyhow::Result<T> {
             let raw_data = fs::read(key_entry?.path())?;
             // let str_data = String::from_utf8(raw_data).unwrap_or("{}".to_string());
             let instance = serde_json::from_slice(&raw_data)?;
