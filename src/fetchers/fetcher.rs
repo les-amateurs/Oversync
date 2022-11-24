@@ -18,7 +18,7 @@ impl FetcherContext {
 }
 #[async_trait]
 pub trait Fetcher{
-    async fn fetch(context: &mut FetcherContext, job: &FeedJob) -> std::io::Result<Vec<FeedItem>> {
+    async fn fetch(context: &mut FetcherContext, job: &FeedJob) -> std::result::Result<Vec<FeedItem>, std::error::Error> {
         Ok(vec!()) // unknown type, we return empty feed for now
     }
 
