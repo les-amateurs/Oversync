@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use http::Uri;
 
 use crate::core::feed::{FeedJob,FeedItem};
@@ -8,9 +9,11 @@ pub struct RSSFetcher {
 
 }
 
+#[async_trait]
 impl Fetcher for RSSFetcher {
-    fn fetch(context: &mut FetcherContext, job: &FeedJob) -> std::io::Result<Vec<FeedItem>> {
+    async fn fetch(context: &mut FetcherContext, job: &FeedJob) -> std::io::Result<Vec<FeedItem>> {
         let req_builder = Self::get(context, &job.uri);
         req_builder.send();
+        Ok(vec![])
     }
 }

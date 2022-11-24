@@ -41,7 +41,7 @@ impl Scheduler {
 
     async fn try_update(&mut self,context: &mut FetcherContext, job: &FeedJob) -> std::io::Result<()>{
         // delegate to feed fetcher that determines which fetcher to use
-        let items = fetch_any(&context, job)?;
+        let items = fetch_any(context, job).await?;
         Ok(())
     }
 

@@ -1,5 +1,6 @@
 use crate::core::feed::{FeedJob,FeedItem};
 
+use async_trait::async_trait;
 use http::Uri;
 use reqwest::{Client, Url, Response};
 
@@ -15,9 +16,9 @@ impl FetcherContext {
         }
     }
 }
-
+#[async_trait]
 pub trait Fetcher{
-    fn fetch(context: &mut FetcherContext, job: &FeedJob) -> std::io::Result<Vec<FeedItem>> {
+    async fn fetch(context: &mut FetcherContext, job: &FeedJob) -> std::io::Result<Vec<FeedItem>> {
         Ok(vec!()) // unknown type, we return empty feed for now
     }
 

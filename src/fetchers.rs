@@ -6,9 +6,9 @@ pub mod fetcher;
 pub mod rss;
 // pub mod something
 
-pub fn fetch_any(context: &FetcherContext, job: &FeedJob) -> std::io::Result<Vec<FeedItem>> {
+pub async fn fetch_any(context: &mut FetcherContext, job: &FeedJob) -> std::io::Result<Vec<FeedItem>> {
     match job.feed_type.as_ref() {
-        "rss" => self::rss::RSSFetcher::fetch(&mut context, job),
+        "rss" => Ok(self::rss::RSSFetcher::fetch(context, job).await?),
         _ => Ok(vec!()) // unknown type, we return empty feed for now
     }
 }
