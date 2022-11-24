@@ -95,8 +95,13 @@ impl Database {
         Ok(())
     }
 
-    fn get_filename(&self, key: &str) -> String {
+    fn get_filename(key: &str) -> String {
         format!("{}{}", key, ".json")
+    }
+
+    // we 
+    fn get_key(filename: &str) -> String {
+        filename.replacen(".json", "",1)
     }
 
     fn get_path_for_collection(&self, collection_name: &str) -> PathBuf {
@@ -107,7 +112,7 @@ impl Database {
 
     fn get_path_for_key(&self, collection_name: &str, key: &str) -> PathBuf {
         self.get_path_for_collection(&collection_name)
-            .join(self.get_filename(key))
+            .join(Self::get_filename(key))
     }
 
     pub fn put(&self, collection: &str, key: &str, value: &impl Serialize) -> anyhow::Result<()> {
@@ -141,14 +146,15 @@ impl Database {
         }
     }
 
-    pub fn iterate_collection<T: DeserializeOwned>(&self, name: &str) -> anyhow::Result<impl Iterator<Item = anyhow::Result<T>>>{
+    pub fn iterate_collection<T: DeserializeOwned>(&self, name: &str) -> anyhow::Result<impl Iterator<Item = anyhow::Result<(String, T)>>>{
         let path = self.get_path_for_collection(&name);
         let keys = fs::read_dir(path)?;
-        Ok(keys.map(|key_entry| -> anyhow::Result<T> {
-            let raw_data = fs::read(key_entry?.path())?;
+        Ok(keys.map(|key_entry_result| -> anyhow::Result<(String,T)> {
+            let key_entry = key_entry_result?;
+            let raw_data = fs::read(key_entry.path())?;
             // let str_data = String::from_utf8(raw_data).unwrap_or("{}".to_string());
             let instance = serde_json::from_slice(&raw_data)?;
-            Ok(instance)
+            Ok((Database::get_key(key_entry.file_name().to_str().unwrap()), instance))
         }))
     }
 

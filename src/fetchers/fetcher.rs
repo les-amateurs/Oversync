@@ -26,15 +26,15 @@ impl FetcherContext {
     }
 }
 
-struct UnseenFeeds {
-    unseen_feeds: Vec<FeedItem>,
+struct UnseenItems {
+    unseen_items: Vec<FeedItem>,
     new_hash: u64
 }
 
 #[async_trait]
 pub trait Fetcher{
     async fn fetch(context: &mut FetcherContext, job: &FeedJob) -> anyhow::Result<Vec<FeedItem>> {
-        Ok(vec!()) // unknown type, we return empty feed for now
+        Ok(vec!()) // unknown type, we return empty item for now
     }
 
     fn get(context: &mut FetcherContext, uri: &Uri) -> reqwest::RequestBuilder {
@@ -52,28 +52,28 @@ pub trait Fetcher{
         dh.finish()
     }
 
-    fn get_new_feeds(feeds: &Vec<FeedItem>, last_seen_hash: Option<u64>) -> UnseenFeeds {
+    fn get_new_feeds(items: &Vec<FeedItem>, last_seen_hash: Option<u64>) -> UnseenItems {
         let new_last_hash: u64 = 0;
-        if !feeds.is_empty() {
+        if !items.is_empty() {
             // i'm sure this won't panic since I ensure it has at least one
-            let new_last_hash = Self::item_hash(feeds.get(0).unwrap());
-            let mut unseen_feeds: Vec<FeedItem> = vec![];
+            let new_last_hash = Self::item_hash(items.get(0).unwrap());
+            let mut unseen_items: Vec<FeedItem> = vec![];
             let last_seen_hash = last_seen_hash.unwrap_or(0);
-            for feed in feeds {
-                // Calculate hash of current feed
-                let current_hash = Self::item_hash(feed);
+            for item in items {
+                // Calculate hash of current item
+                let current_hash = Self::item_hash(item);
                 if current_hash == last_seen_hash {
                     break;
                 }
-                unseen_feeds.push(feed.clone()); // TODO: avoid nasty copy
+                unseen_items.push(item.clone()); // TODO: avoid nasty copy
             }
-            UnseenFeeds {
-                unseen_feeds,
+            UnseenItems {
+                unseen_items,
                 new_hash: new_last_hash
             }
         }else{
-            UnseenFeeds {
-                unseen_feeds: feeds.to_vec(), // copy 
+            UnseenItems {
+                unseen_items: items.to_vec(), // copy 
                 new_hash: new_last_hash
             }
         }
