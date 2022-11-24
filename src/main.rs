@@ -15,6 +15,7 @@ use std::sync::Mutex;
 
 mod core;
 mod bot;
+mod fetchers;
 mod scheduling;
 
 #[tokio::main]

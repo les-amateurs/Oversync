@@ -11,7 +11,10 @@ use std::time::Duration;
 use async_trait::async_trait;
 
 use crate::core::feed::FeedCollection;
+use crate::fetchers::fetcher::FetcherContext;
 use crate::{core::{service::Service, messaging::{ServiceMessage, FeedUpdatedMessage}, db::Database, feed::{FeedItem, FeedJob}}, bot::discord::DiscordBot};
+
+use crate::fetchers::fetch_any;
 
 // For now the scheduler owns the other services. 
 pub struct Scheduler{
@@ -36,22 +39,30 @@ impl Scheduler {
         self.bot = Some(bot);
     }
 
-    async fn try_update(&mut self, job: &FeedJob) -> std::io::Result<()>{
+    async fn try_update(&mut self,context: &mut FetcherContext, job: &FeedJob) -> std::io::Result<()>{
         // delegate to feed fetcher that determines which fetcher to use
+        let items = fetch_any(&context, job)?;
+        Ok(())
     }
 
     async fn try_update_collection(&mut self, collection_name: &str, required_time: chrono::Duration) -> std::io::Result<()> {
-        self.db_arc.lock().unwrap().iterate_collection::<FeedCollection>(collection_name)?.for_each(|result| {
-            if let Ok(feed_collection) = result {
+        let feed_jobs = self.db_arc.lock().unwrap().iterate_collection::<FeedCollection>(collection_name)?;
+        let mut context = FetcherContext::new();
+        for feed_collection_result in feed_jobs {
+            if let Ok(feed_collection) = feed_collection_result {
                 for job in feed_collection.jobs  {
                     let time_since = chrono::Utc::now() - job.last_synced;
                     if time_since >= required_time {
-                        // Sync now
-                        self.try_update(&job).await?;
+                        // Sync now since enough time has elapsed. 
+                        let sync_result = self.try_update(&mut context, &job).await;
+                        match sync_result {
+                            Ok(_) => {}
+                            Err(err) => println!("Syncing Feed Error {}",err)
+                        }
                     }
                 }
             }
-        });
+        }
         Ok(())
     }
 
