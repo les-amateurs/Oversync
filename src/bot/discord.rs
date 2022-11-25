@@ -6,9 +6,12 @@ use std::sync::Mutex;
 use crate::core::db::Database;
 use crate::core::messaging::ServiceMessage;
 use crate::core::service::Service;
+use crate::scheduling::scheduler::Scheduler;
 use async_trait::async_trait;
 use serenity::model::application::interaction::Interaction;
 use serenity::model::application::interaction::InteractionResponseType;
+use serenity::model::prelude::ChannelId;
+use serenity::model::prelude::GuildId;
 use serenity::model::prelude::command::Command;
 
 use serenity::model::channel::Message;
@@ -20,7 +23,7 @@ use self::slash_commands::shared::DatabaseInTypeMap;
 pub struct DiscordBot {
     pub token: String,
     pub client: Client,
-    pub database: Arc<std::sync::Mutex<Database>>,
+    pub database: Arc<std::sync::Mutex<Database>>
 }
 
 struct DiscordBotHandler;
@@ -53,6 +56,7 @@ impl EventHandler for DiscordBotHandler {
 
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         if let Interaction::ApplicationCommand(command) = interaction {
+            command.defer(&ctx.http);
             let (ctx, message): (Context, Option<String>) = match command.data.name.as_str() {
                 "configure" => slash_commands::configure::run(ctx, &command).await,
                 _ => {
@@ -108,9 +112,18 @@ impl EventHandler for DiscordBotHandler {
 
 #[async_trait]
 impl Service for DiscordBot {
-    async fn recieve(&self, message: Arc<&ServiceMessage>) {
+    async fn recieve(&self, message: Arc<&ServiceMessage>) -> anyhow::Result<()> {
         match message.as_ref() {
-            ServiceMessage::FeedUpdated(_) => todo!(),
+            ServiceMessage::FeedUpdated(feed_updated_msg) => {
+                let dest = &feed_updated_msg.job.destination;
+                let item = &feed_updated_msg.item;
+                if dest.dest_type == "discord" {
+                    let channel_id: u64 = dest.id.parse()?;
+                    // stupid af message sending for now
+                    ChannelId(channel_id).say(&self.client.cache_and_http.http, &item.link.clone().unwrap_or("no link".to_string())).await?;
+                }
+                Ok(())
+            },
         }
     }
 
@@ -139,6 +152,7 @@ impl DiscordBot {
             token: token.to_owned(),
             client,
             database: database_arc, // we own the arc now!
+            sched_ref: None
         }
     }
 }

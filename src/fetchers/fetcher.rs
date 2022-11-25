@@ -26,9 +26,9 @@ impl FetcherContext {
     }
 }
 
-struct UnseenItems {
-    unseen_items: Vec<FeedItem>,
-    new_hash: u64
+pub struct UnseenItems {
+    pub unseen_items: Vec<FeedItem>,
+    pub new_hash: u64
 }
 
 #[async_trait]
@@ -52,7 +52,7 @@ pub trait Fetcher{
         dh.finish()
     }
 
-    fn get_new_feeds(items: &Vec<FeedItem>, last_seen_hash: Option<u64>) -> UnseenItems {
+    fn get_new_items(items: &Vec<FeedItem>, last_seen_hash: Option<u64>) -> UnseenItems {
         let new_last_hash: u64 = 0;
         if !items.is_empty() {
             // i'm sure this won't panic since I ensure it has at least one
@@ -78,4 +78,12 @@ pub trait Fetcher{
             }
         }
     }
+}
+
+pub struct DefaultFetcher {
+
+}
+
+impl Fetcher for DefaultFetcher {
+
 }

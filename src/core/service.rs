@@ -6,8 +6,8 @@ use super::messaging::ServiceMessage;
 // bruh we need extra dep for async trait
 #[async_trait]
 pub trait Service {
-    async fn recieve(&self, message: Arc<&ServiceMessage>) {
-
+    async fn recieve(&self, message: Arc<&ServiceMessage>) -> anyhow::Result<()> {
+        Ok(())
     }
 
     async fn start(&mut self) {
